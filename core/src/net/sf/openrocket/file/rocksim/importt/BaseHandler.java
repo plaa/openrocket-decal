@@ -3,17 +3,20 @@
  */
 package net.sf.openrocket.file.rocksim.importt;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.file.rocksim.RocksimDensityType;
 import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.material.Material;
+import net.sf.openrocket.rocketcomponent.ExternalComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import org.xml.sax.SAXException;
+import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.HashMap;
+import org.xml.sax.SAXException;
 
 /**
  * An abstract base class that handles common parsing.  All Rocksim component handlers are subclassed from here.
@@ -47,6 +50,8 @@ public abstract class BaseHandler<C extends RocketComponent> extends AbstractEle
      * The material name.
      */
     private String materialName = "";
+    
+    private RockSimAppearanceBuilder appearanceBuilder = new RockSimAppearanceBuilder();
 
     /**
      * The SAX method called when the closing element tag is reached.
@@ -82,6 +87,8 @@ public abstract class BaseHandler<C extends RocketComponent> extends AbstractEle
             if (RocksimCommonConstants.DENSITY_TYPE.equals(element)) {
                 densityType = RocksimDensityType.fromCode(Integer.parseInt(content));
             }
+            
+            appearanceBuilder.processElement(element, content, warnings);
         }
         catch (NumberFormatException nfe) {
             warnings.add("Could not convert " + element + " value of " + content + ".  It is expected to be a number.");
@@ -99,6 +106,17 @@ public abstract class BaseHandler<C extends RocketComponent> extends AbstractEle
          */
         density = computeDensity(densityType, density);
         RocketComponent component = getComponent();
+        
+        //TODO - What RockSim components can have Appearances?
+        if ( component instanceof ExternalComponent ){	
+        	//If a symmetric component is set to PreventSeam then it is repeated
+        	//twice as many times around the rocket.
+        	if ( component instanceof SymmetricComponent && appearanceBuilder.isPreventSeam() ){
+        		appearanceBuilder.setScaleU(appearanceBuilder.getScaleU()*2);
+			}
+        	component.setAppearance(appearanceBuilder.getAppearance());
+        }
+        
         updateComponentMaterial(component, materialName, getMaterialType(), density);
     }
 
