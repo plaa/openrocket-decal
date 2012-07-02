@@ -9,6 +9,7 @@ import java.util.Map;
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GL2ES1;
+import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.GLProfile;
 import javax.media.opengl.fixedfunc.GLLightingFunc;
 import javax.media.opengl.fixedfunc.GLMatrixFunc;
@@ -31,12 +32,24 @@ public class RealisticRenderStrategy extends RenderStrategy {
 	private static final LogHelper log = Application.getLogger();
 
 	private boolean needClearCache = false;
-	private Map<URI, Texture> oldTexCache = new HashMap<URI, Texture>();
-	private Map<URI, Texture> texCache = new HashMap<URI, Texture>();
+	private Map<URI, Texture> oldTexCache;
+	private Map<URI, Texture> texCache;
 
 	@Override
-	public void clearCaches() {
+	public void updateFigure() {
 		needClearCache = true;
+	}
+	
+	@Override
+	public void init(GLAutoDrawable drawable) {
+		oldTexCache = new HashMap<URI, Texture>();
+		texCache = new HashMap<URI, Texture>();
+	}
+	
+	@Override
+	public void dispose(GLAutoDrawable drawable) {
+		oldTexCache = null;
+		texCache = null;
 	}
 
 	@Override

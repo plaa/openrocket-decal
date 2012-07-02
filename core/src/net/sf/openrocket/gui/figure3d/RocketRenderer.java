@@ -38,10 +38,15 @@ public class RocketRenderer {
 	public void init(GLAutoDrawable drawable) {
 		cr = new ComponentRenderer();
 		cr.init(drawable);
+		currentStrategy.init(drawable);
+	}
+	
+	public void dispose(GLAutoDrawable drawable) {
+		currentStrategy.dispose(drawable);
 	}
 
 	public void updateFigure() {
-		currentStrategy.clearCaches();
+		currentStrategy.updateFigure();
 		cr.updateFigure();
 	}
 
