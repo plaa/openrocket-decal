@@ -5,6 +5,7 @@ import java.util.HashMap;
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GL2ES1;
+import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.fixedfunc.GLLightingFunc;
 
 import net.sf.openrocket.rocketcomponent.BodyTube;
@@ -19,6 +20,31 @@ import net.sf.openrocket.util.Color;
 public class FigureRenderStrategy extends RenderStrategy {
 	private final float[] color = new float[4];
 
+	@Override
+	public void init(GLAutoDrawable drawable) {
+
+		GL2 gl = drawable.getGL().getGL2();
+		
+		gl.glLightModelfv(GL2ES1.GL_LIGHT_MODEL_AMBIENT, 
+                new float[] { 0,0,0 }, 0);
+
+		float amb = 0.5f;
+		float dif = 1.0f;
+		float spc = 1.0f;
+		gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_AMBIENT,
+				new float[] { amb, amb, amb, 1 }, 0);
+		gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_DIFFUSE,
+				new float[] { dif, dif, dif, 1 }, 0);
+		gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_SPECULAR,
+				new float[] { spc, spc, spc, 1 }, 0);
+
+		gl.glEnable(GLLightingFunc.GL_LIGHT1);
+		gl.glEnable(GLLightingFunc.GL_LIGHTING);
+		gl.glShadeModel(GLLightingFunc.GL_SMOOTH);
+
+		gl.glEnable(GLLightingFunc.GL_NORMALIZE);
+	}
+	
 	@Override
 	public boolean isDrawn(RocketComponent c) {
 		return true;
@@ -121,9 +147,9 @@ public class FigureRenderStrategy extends RenderStrategy {
 			out[1] = 1;
 			out[2] = 0;
 		} else {
-			out[0] = Math.max(0.2f, (float) color.getRed() / 255f) * 2;
-			out[1] = Math.max(0.2f, (float) color.getGreen() / 255f) * 2;
-			out[2] = Math.max(0.2f, (float) color.getBlue() / 255f) * 2;
+			out[0] = Math.max(0.2f, (float) color.getRed() / 255f);
+			out[1] = Math.max(0.2f, (float) color.getGreen() / 255f);
+			out[2] = Math.max(0.2f, (float) color.getBlue() / 255f);
 		}
 	}
 }
