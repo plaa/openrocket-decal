@@ -17,10 +17,11 @@ import net.sf.openrocket.l10n.ResourceBundleTranslator;
 import net.sf.openrocket.startup.Application;
 
 /**
- * An application for quickly testing 3d figure witout all the OpenRocket user interface
+ * An application for quickly testing 3d figure witout all the OpenRocket user
+ * interface
  * 
  * @author bkuker
- *
+ * 
  */
 public class Quick3dMain {
 
@@ -28,8 +29,32 @@ public class Quick3dMain {
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
-		Application.setBaseTranslator(new ResourceBundleTranslator(
-				"l10n.messages"));
+		Application.setExceptionHandler(new ExceptionHandler() {
+
+			@Override
+			public void uncaughtException(Thread thread, Throwable throwable) {
+				throwable.printStackTrace();
+
+			}
+
+			@Override
+			public void handleErrorCondition(Throwable exception) {
+				exception.printStackTrace();
+			}
+
+			@Override
+			public void handleErrorCondition(String message, Throwable exception) {
+				exception.printStackTrace();
+
+			}
+
+			@Override
+			public void handleErrorCondition(String message) {
+				System.err.println(message);
+
+			}
+		});
+		Application.setBaseTranslator(new ResourceBundleTranslator("l10n.messages"));
 		Application.setMotorSetDatabase(new ThrustCurveMotorSetDatabase(false) {
 			{
 				startLoading();
@@ -40,25 +65,25 @@ public class Quick3dMain {
 			}
 		});
 		Application.setPreferences(new SwingPreferences());
-		
+
 		// Must be done after localization is initialized
 		ComponentPresetDatabase componentPresetDao = new ComponentPresetDatabase(true) {
 
 			@Override
 			protected void load() {
-				ConcurrentComponentPresetDatabaseLoader presetLoader = new ConcurrentComponentPresetDatabaseLoader( this );
+				ConcurrentComponentPresetDatabaseLoader presetLoader = new ConcurrentComponentPresetDatabaseLoader(this);
 				presetLoader.load();
 				try {
 					presetLoader.await();
-				} catch ( InterruptedException iex) {
-					
+				} catch (InterruptedException iex) {
+
 				}
 			}
-			
+
 		};
 		componentPresetDao.load("datafiles", ".*csv");
 		componentPresetDao.startLoading();
-		Application.setComponentPresetDao( componentPresetDao );
+		Application.setComponentPresetDao(componentPresetDao);
 
 		OpenRocketDocument doc = new OpenRocketLoader().loadFromStream(
 				Quick3dMain.class.getResourceAsStream("/datafiles/examples/Clustered rocket design.ork"),
