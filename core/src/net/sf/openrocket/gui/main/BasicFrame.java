@@ -110,7 +110,7 @@ public class BasicFrame extends JFrame {
 	/**
 	 * The RocketLoader instance used for loading all rocket designs.
 	 */
-	private static final RocketLoader ROCKET_LOADER = new GeneralRocketLoader();
+	private static final GeneralRocketLoader ROCKET_LOADER = new GeneralRocketLoader();
 
 	private static final RocketSaver ROCKET_SAVER = new OpenRocketSaver();
 

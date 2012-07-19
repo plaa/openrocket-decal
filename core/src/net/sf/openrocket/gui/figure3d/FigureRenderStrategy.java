@@ -20,6 +20,10 @@ import net.sf.openrocket.util.Color;
 public class FigureRenderStrategy extends RenderStrategy {
 	private final float[] color = new float[4];
 
+	public FigureRenderStrategy() {
+		super(null);
+	}
+
 	@Override
 	public void init(GLAutoDrawable drawable) {
 

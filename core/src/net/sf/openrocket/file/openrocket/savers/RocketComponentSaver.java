@@ -5,6 +5,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
+import net.sf.openrocket.appearance.Appearance;
+import net.sf.openrocket.appearance.Decal;
+import net.sf.openrocket.appearance.Decal.EdgeMode;
 import net.sf.openrocket.file.RocketSaver;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.motor.Motor;
@@ -16,6 +19,7 @@ import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Color;
+import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.LineStyle;
 
 
@@ -35,14 +39,36 @@ public class RocketComponentSaver {
 					"\" partno=\"" + preset.getPartNo() + "\" digest=\"" + preset.getDigest() +"\"/>");
 		}
 
+		Appearance ap = c.getAppearance();
+		if ( ap != null ) {
+			elements.add("<appearance>");
+			Color ambient = ap.getAmbient();
+			emitColor("ambient",elements,ambient);
+			Color diffuse = ap.getDiffuse();
+			emitColor("diffuse",elements,diffuse);
+			Color specular = ap.getSpecular();
+			emitColor("specular",elements,specular);
+			Decal decal = ap.getTexture();
+			if ( decal != null ) {
+				String name = decal.getImage();
+				double rotation = decal.getRotation();
+				EdgeMode edgeMode = decal.getEdgeMode();
+				elements.add("<decal name=\""+name+"\" rotation=\""+rotation+"\" edgemode=\""+ edgeMode.name()+"\">");
+				Coordinate center = decal.getCenter();
+				elements.add("<center x=\""+center.x+"\" y=\""+center.y+"\"/>");
+				Coordinate offset = decal.getOffset();
+				elements.add("<offset x=\""+offset.x+"\" y=\""+offset.y+"\"/>");
+				Coordinate scale = decal.getScale();
+				elements.add("<scale x=\""+scale.x+"\" y=\""+scale.y+"\"/>");
+				elements.add("</decal>");
+			}
+			elements.add("</appearance>");
+		}
 
 		// Save color and line style if significant
 		if (!(c instanceof Rocket || c instanceof ComponentAssembly)) {
 			Color color = c.getColor();
-			if (color != null) {
-				elements.add("<color red=\"" + color.getRed() + "\" green=\"" + color.getGreen()
-						+ "\" blue=\"" + color.getBlue() + "\"/>");
-			}
+			emitColor("color", elements, color);
 
 			LineStyle style = c.getLineStyle();
 			if (style != null) {
@@ -83,6 +109,13 @@ public class RocketComponentSaver {
 
 	}
 
+	private final static void emitColor( String elementName, List<String> elements, Color color ) {
+		if (color != null) {
+			elements.add("<" + elementName+ " red=\"" + color.getRed() + "\" green=\"" + color.getGreen()
+					+ "\" blue=\"" + color.getBlue() + "\"/>");
+		}
+
+	}
 
 
 
