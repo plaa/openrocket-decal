@@ -60,11 +60,10 @@ import javax.swing.tree.TreeSelectionModel;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.file.GeneralRocketLoader;
+import net.sf.openrocket.file.GeneralRocketSaver;
 import net.sf.openrocket.file.RocketLoadException;
-import net.sf.openrocket.file.RocketSaver;
-import net.sf.openrocket.file.openrocket.OpenRocketSaver;
-import net.sf.openrocket.file.rocksim.export.RocksimSaver;
 import net.sf.openrocket.gui.StorageOptionChooser;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
 import net.sf.openrocket.gui.dialogs.AboutDialog;
@@ -112,7 +111,7 @@ public class BasicFrame extends JFrame {
 	 */
 	private static final GeneralRocketLoader ROCKET_LOADER = new GeneralRocketLoader();
 
-	private static final RocketSaver ROCKET_SAVER = new OpenRocketSaver();
+	private static final GeneralRocketSaver ROCKET_SAVER = new GeneralRocketSaver();
 
 	private static final Translator trans = Application.getTranslator();
 
@@ -1088,11 +1087,20 @@ public class BasicFrame extends JFrame {
 			}
 		}
 
+		if ( filename == null ) {
+			filename = "";
+		}
+		
+		// Remove path from filename
+		if (filename.lastIndexOf('/') >= 0) {
+			filename = filename.substring(filename.lastIndexOf('/') + 1);
+		}
+
 		// Open the file
 		log.info("Opening file from url=" + url + " filename=" + filename);
 		try {
 			InputStream is = url.openStream();
-			if (open(is, url, parent)) {
+			if (open(is, filename, url, parent)) {
 				// Close previous window if replacing
 				if (parent.replaceable && parent.document.isSaved()) {
 					parent.closeAction();
@@ -1119,9 +1127,9 @@ public class BasicFrame extends JFrame {
 	 * @param parent	the parent component for which a progress dialog is opened.
 	 * @return			whether the file was successfully loaded and opened.
 	 */
-	private static boolean open(InputStream stream, URL fileURL, Window parent) {
+	private static boolean open(InputStream stream, String filename, URL fileURL, Window parent) {
 		OpenFileWorker worker = new OpenFileWorker(stream, fileURL, ROCKET_LOADER);
-		return open(worker, fileURL.getFile(), null, parent);
+		return open(worker, filename, null, parent);
 	}
 
 
@@ -1320,13 +1328,16 @@ public class BasicFrame extends JFrame {
 	 * @return true if the file was written
 	 */
 	private boolean saveAsRocksim(File file) {
+		// FIME - this function can probably go away since the Worker thread can handle rocksim files.
 		file = FileHelper.forceExtension(file, "rkt");
 		if (!FileHelper.confirmWrite(file, this)) {
 			return false;
 		}
 
 		try {
-			new RocksimSaver().save(file, document);
+			StorageOptions options = new StorageOptions();
+			options.setFileType(StorageOptions.FileType.ROCKSIM);
+			ROCKET_SAVER.save(file,document,options);
 			return true;
 		} catch (IOException e) {
 			return false;
