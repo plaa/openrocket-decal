@@ -49,7 +49,7 @@ public class GeneralRocketLoader {
 		try {
 			
 			stream = new BufferedInputStream(new FileInputStream(source));
-			OpenRocketDocument doc = load(stream, source, motorFinder);
+			OpenRocketDocument doc = load(stream, new FileInfo(source), motorFinder);
 			return doc;
 			
 		} catch (Exception e) {
@@ -65,10 +65,10 @@ public class GeneralRocketLoader {
 		}
 	}
 	
-	public final OpenRocketDocument load(InputStream source, File file, MotorFinder motorFinder) throws RocketLoadException {
+	public final OpenRocketDocument load(InputStream source, FileInfo fileInfo, MotorFinder motorFinder) throws RocketLoadException {
 		try {
 		OpenRocketDocument doc = loadFromStream(source, motorFinder );
-		doc.getDecalRegistry().setBaseFile(file);
+		doc.getDecalRegistry().setBaseFile(fileInfo);
 		return doc;
 		} catch (Exception e) {
 			throw new RocketLoadException("Exception loading stream", e);
