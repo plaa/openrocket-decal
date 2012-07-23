@@ -1322,7 +1322,6 @@ public class BasicFrame extends JFrame {
 	 * @return true if the file was written
 	 */
 	private boolean saveAsRocksim(File file) {
-		// FIME - this function can probably go away since the Worker thread can handle rocksim files.
 		file = FileHelper.forceExtension(file, "rkt");
 		if (!FileHelper.confirmWrite(file, this)) {
 			return false;
@@ -1332,6 +1331,7 @@ public class BasicFrame extends JFrame {
 			StorageOptions options = new StorageOptions();
 			options.setFileType(StorageOptions.FileType.ROCKSIM);
 			ROCKET_SAVER.save(file,document,options);
+			// Do not update the save state of the document.
 			return true;
 		} catch (IOException e) {
 			return false;
