@@ -3,7 +3,11 @@ package net.sf.openrocket.document;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
+import net.sf.openrocket.appearance.Appearance;
+import net.sf.openrocket.appearance.Decal;
 import net.sf.openrocket.document.events.DocumentChangeEvent;
 import net.sf.openrocket.document.events.DocumentChangeListener;
 import net.sf.openrocket.document.events.SimulationChangeEvent;
@@ -13,6 +17,7 @@ import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ArrayList;
 
@@ -123,6 +128,28 @@ public class OpenRocketDocument implements ComponentChangeListener {
 		this.decalRegistry = decalRegistry;
 	}
 
+	public Set<String> getDecalList( ) {
+		
+		Set<String> decals = new TreeSet<String>();
+		// Look for all decals used in the rocket.
+		for( RocketComponent c : this.getRocket() ) {
+			if ( c.getAppearance() == null ) {
+				continue;
+			}
+			Appearance ap = c.getAppearance();
+			if ( ap.getTexture() == null ) {
+				continue;
+			}
+
+			Decal decal = ap.getTexture();
+
+			String decalName = decal.getImage();
+
+			decals.add(decalName);
+		}
+		return decals;
+	}
+	
 	public File getFile() {
 		return file;
 	}
